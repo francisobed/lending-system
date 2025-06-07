@@ -1,16 +1,29 @@
 using LendingSystem.Infrastructure.Data;
+using LendingSystem.Infrastructure.Repositories;
+using LendingSystem.Interfaces;
+using LendingSystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-
+// Add services
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseInMemoryDatabase("LendingDb")); // For example, swap for SQL Server
 
-builder.Services.AddScoped<IYourDomainService, YourDomainServiceImplementation>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<AuthService>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
 
 app.MapControllers();
 

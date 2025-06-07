@@ -1,4 +1,4 @@
-using LendingSystem;
+using LendingSystem.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LendingSystem.Infrastructure.Data
@@ -7,12 +7,12 @@ namespace LendingSystem.Infrastructure.Data
     {
         public AppDbContext(DbContextOptions options) : base(options) { }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Loan> Loans { get; set; }
-        public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Fluent API configurations
+            // Fluent API configurations if any
             base.OnModelCreating(modelBuilder);
         }
     }
