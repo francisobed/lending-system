@@ -1,53 +1,77 @@
 ﻿using LendingSystem.Entities;
 using LendingSystem.Interfaces;
-using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
+using BCrypt.Net;
+using Microsoft.Extensions.Configuration;
+
 
 namespace LendingSystem.Infrastructure.Services
 {
     public class AuthService
     {
         private readonly IUserRepository _userRepository;
+        private readonly string _jwtSecret;
+        private readonly int _jwtLifespanMinutes;
 
-        public AuthService(IUserRepository userRepository)
+        public AuthService(IUserRepository userRepository, IConfiguration config)
         {
             _userRepository = userRepository;
+            _jwtSecret = config["Jwt:Secret"] ?? throw new ArgumentNullException("Jwt:Secret");
+            _jwtLifespanMinutes = int.Parse(config["Jwt:LifespanMinutes"] ?? "60");
         }
 
-        public async Task<User> RegisterAsync(string email, string password)
+        public async Task<string?> Authenticate(string username, string password)
         {
-            var existingUser = await _userRepository.GetByEmailAsync(email);
-            if (existingUser != null) throw new Exception("User already exists");
+            var user = await _userRepository.GetByUsernameAsync(username);
+            if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+                return null;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_jwtSecret);
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username ?? string.Empty),
+        new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+        new Claim(ClaimTypes.Role, user.Role)
+    };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_jwtLifespanMinutes),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<User> Register(string username, string email, string password, string role)
+        {
+            var existing = await _userRepository.GetByUsernameAsync(username);
+            if (existing != null) throw new Exception("User already exists");
 
             var user = new User
             {
+                Id = Guid.NewGuid(),
+                Username = username,
                 Email = email,
-                PasswordHash = HashPassword(password),
-                Role = "User"
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                Role = string.IsNullOrWhiteSpace(role) ? "User" : role
             };
 
-            await _userRepository.AddUserAsync(user);
+            await _userRepository.AddAsync(user);
+            await _userRepository.SaveChangesAsync();
             return user;
         }
 
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
-
-        public async Task<User> AuthenticateAsync(string email, string password)
-        {
-            var user = await _userRepository.GetByEmailAsync(email);
-            if (user == null) return null;
-
-            var hash = HashPassword(password);
-            if (user.PasswordHash != hash) return null;
-
-            return user;
-        }
     }
 }

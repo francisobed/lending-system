@@ -1,5 +1,5 @@
-﻿using LendingSystem.Infrastructure.Services;
-using LendingSystem.API.DTOs;
+﻿using LendingSystem.API.DTOs;
+using LendingSystem.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LendingSystem.API.Controllers
@@ -16,27 +16,28 @@ namespace LendingSystem.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(UserRegisterDto dto)
         {
             try
             {
-                var user = await _authService.RegisterAsync(dto.Email, dto.Password);
-                return Ok(new { user.Id, user.Email });
+                var user = await _authService.Register(dto.Username, dto.Email, dto.Password, dto.Role);
+                return Ok(new { user.Id, user.Username, user.Email, user.Role });
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = e.Message });
             }
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
         {
-            var user = await _authService.AuthenticateAsync(dto.Email, dto.Password);
-            if (user == null) return Unauthorized("Invalid credentials");
+            var token = await _authService.Authenticate(dto.Username, dto.Password);
+            if (token == null)
+                return Unauthorized(new { message = "Invalid credentials" });
 
-            // For brevity, skipping JWT token generation here
-            return Ok(new { user.Id, user.Email, user.Role });
+            return Ok(new { token });
         }
+
     }
 }

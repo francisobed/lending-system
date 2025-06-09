@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "LendingSystem": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\franc\\OneDrive\\Desktop\\My Projects\\lending-system",
+      "nativeDebugging": true,
+      "sqlDebugging": true,
+      "jsWebView2Debugging": true,
+      "remoteDebugEnabled": true
+    }
+  }
+}

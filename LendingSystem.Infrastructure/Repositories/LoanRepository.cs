@@ -2,43 +2,34 @@
 using LendingSystem.Interfaces;
 using LendingSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace LendingSystem.Infrastructure.Repositories
 {
     public class LoanRepository : ILoanRepository
     {
         private readonly AppDbContext _context;
-
         public LoanRepository(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task AddLoanAsync(Loan loan)
+        public async Task AddAsync(Loan loan)
         {
             await _context.Loans.AddAsync(loan);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task<Loan> GetByIdAsync(Guid loanId)
+        public async Task<Loan?> GetByIdAsync(Guid id)
         {
-            return await _context.Loans.FindAsync(loanId);
+            return await _context.Loans.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Loan>> GetLoansByUserIdAsync(Guid userId)
+        public async Task<IEnumerable<Loan>> GetByUserIdAsync(Guid userId)
         {
-            return await _context.Loans
-                .AsNoTracking()
-                .Where(l => l.BorrowerId == userId)
-                .ToListAsync();
+            return await _context.Loans.Where(l => l.UserId == userId).ToListAsync();
         }
 
-        public async Task UpdateLoanAsync(Loan loan)
+        public async Task SaveChangesAsync()
         {
-            _context.Loans.Update(loan);
             await _context.SaveChangesAsync();
         }
     }

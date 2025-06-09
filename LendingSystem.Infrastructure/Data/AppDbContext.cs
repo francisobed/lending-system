@@ -5,14 +5,22 @@ namespace LendingSystem.Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {
-        public AppDbContext(DbContextOptions options) : base(options) { }
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Loan> Loans => Set<Loan>();
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Loan> Loans { get; set; }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Fluent API configurations if any
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Loans)
+                .WithOne(l => l.User)
+                .HasForeignKey(l => l.UserId);
+
             base.OnModelCreating(modelBuilder);
         }
     }

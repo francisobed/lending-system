@@ -1,12 +1,12 @@
 ﻿using LendingSystem.Entities;
-using System.Threading.Tasks;
 
 namespace LendingSystem.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User> GetByEmailAsync(string email);
-        Task AddUserAsync(User user);
-        // More methods as needed
+        Task<User?> GetByUsernameAsync(string username);
+        Task<User?> GetByIdAsync(Guid id);
+        Task AddAsync(User user);
+        Task SaveChangesAsync();
     }
 }
