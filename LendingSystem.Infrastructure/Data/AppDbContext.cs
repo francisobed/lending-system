@@ -7,6 +7,7 @@ namespace LendingSystem.Infrastructure.Data
     {
         public DbSet<User> Users => Set<User>();
         public DbSet<Loan> Loans => Set<Loan>();
+        public DbSet<RepaymentSchedule> RepaymentSchedules => Set<RepaymentSchedule>();
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -20,6 +21,12 @@ namespace LendingSystem.Infrastructure.Data
                 .HasMany(u => u.Loans)
                 .WithOne(l => l.User)
                 .HasForeignKey(l => l.UserId);
+
+            modelBuilder.Entity<Loan>()
+                .HasMany(l => l.RepaymentSchedule)
+                .WithOne(rs => rs.Loan)
+                .HasForeignKey(rs => rs.LoanId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);
         }
