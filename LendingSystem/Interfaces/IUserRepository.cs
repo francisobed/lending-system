@@ -1,4 +1,7 @@
 ﻿using LendingSystem.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace LendingSystem.Interfaces
 {
@@ -8,5 +11,7 @@ namespace LendingSystem.Interfaces
         Task<User?> GetByIdAsync(Guid id);
         Task AddAsync(User user);
         Task SaveChangesAsync();
+        Task<IEnumerable<User>> GetAllUsersAsync();
+        Task<User?> GetByUsernameOrEmailAsync(string username, string email);
     }
 }

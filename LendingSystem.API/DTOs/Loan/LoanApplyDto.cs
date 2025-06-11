@@ -1,4 +1,4 @@
-namespace LendingSystem.API.DTOs
+namespace LendingSystem.API.DTOs.Loan
 {
     public class LoanApplyDto
     {

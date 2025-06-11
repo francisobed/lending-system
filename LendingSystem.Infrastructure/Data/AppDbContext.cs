@@ -9,6 +9,9 @@ namespace LendingSystem.Infrastructure.Data
         public DbSet<Loan> Loans => Set<Loan>();
         public DbSet<RepaymentSchedule> RepaymentSchedules => Set<RepaymentSchedule>();
 
+        // Fix: Change 'Repayments' from 'object' to DbSet<Repayment> to allow EF Core querying
+        public DbSet<Repayment> Repayments => Set<Repayment>();
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

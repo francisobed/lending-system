@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LendingSystem.Entities
@@ -10,17 +12,17 @@ namespace LendingSystem.Entities
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = null!;
 
         [Required]
-        public string PasswordHash { get; set; }
+        public string Username { get; set; } = null!; // Store username in DB
 
         [Required]
-        public string Role { get; set; } // e.g. "User", "Admin"
+        public string PasswordHash { get; set; } = null!;
+
+        [Required]
+        public string Role { get; set; } = "User"; // Single role: "User" or "Admin"
 
         public List<Loan> Loans { get; set; } = new();
-
-        [NotMapped]
-        public string Username { get; set; } // Not stored in DB
     }
 }

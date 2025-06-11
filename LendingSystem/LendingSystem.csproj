@@ -16,4 +16,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LendingSystem.Shared\LendingSystem.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

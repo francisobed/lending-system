@@ -35,7 +35,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key)
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        RoleClaimType = System.Security.Claims.ClaimTypes.Role // <-- This line enables role recognition
     };
 });
 
@@ -47,7 +48,6 @@ builder.Services.AddEndpointsApiExplorer();
 // Configure SwaggerGen without XML comments
 builder.Services.AddSwaggerGen(options =>
 {
-    // Basic info for the Swagger UI page
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
@@ -91,7 +91,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 
-    // Optional: Include XML comments if you generate them from your code
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     if (File.Exists(xmlPath))

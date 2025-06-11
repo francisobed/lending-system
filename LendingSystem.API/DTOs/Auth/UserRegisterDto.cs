@@ -1,4 +1,4 @@
-namespace LendingSystem.API.DTOs
+namespace LendingSystem.API.DTOs.Auth
 {
     public class UserRegisterDto
     {

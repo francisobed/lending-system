@@ -8,8 +8,9 @@
         public DateTime DueDate { get; set; }
         public decimal Amount { get; set; }
         public bool IsPaid { get; set; } = false;
+        public object PaidDate { get; set; }
 
-       // public ICollection<RepaymentSchedule> RepaymentSchedule { get; set; }
+        // public ICollection<RepaymentSchedule> RepaymentSchedule { get; set; }
 
     }
 }

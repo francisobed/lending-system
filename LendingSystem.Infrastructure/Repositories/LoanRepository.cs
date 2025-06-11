@@ -1,6 +1,7 @@
 ﻿using LendingSystem.Entities;
 using LendingSystem.Interfaces;
 using LendingSystem.Infrastructure.Data;
+using LendingSystem.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,16 @@ namespace LendingSystem.Infrastructure.Repositories
         public async Task AddAsync(Loan loan)
         {
             await _context.Loans.AddAsync(loan);
+        }
+
+        public async Task<IEnumerable<Loan>> GetAllLoansAsync()
+        {
+            return await _context.Loans.ToListAsync();
+        }
+
+        public async Task<IEnumerable<Repayment>> GetAllRepaymentsAsync()
+        {
+            return await _context.Repayments.ToListAsync();
         }
 
         public async Task<Loan?> GetByIdAsync(Guid id)
@@ -49,6 +60,22 @@ namespace LendingSystem.Infrastructure.Repositories
                 .Where(l => l.UserId == userId &&
                             (l.Status == LoanStatus.Disbursed || l.Status == LoanStatus.Approved))
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<LoanSummaryDto> GetLoanSummaryAsync()
+        {
+            var totalLoans = await _context.Loans.CountAsync();
+            var approvedLoans = await _context.Loans.CountAsync(l => l.Status == LoanStatus.Approved);
+            var rejectedLoans = await _context.Loans.CountAsync(l => l.Status == LoanStatus.Rejected);
+            var totalLoanAmount = await _context.Loans.SumAsync(l => l.Amount);
+
+            return new LoanSummaryDto
+            {
+                TotalLoans = totalLoans,
+                ApprovedLoans = approvedLoans,
+                RejectedLoans = rejectedLoans,
+                TotalLoanAmount = totalLoanAmount
+            };
         }
 
         public async Task SaveChangesAsync()
